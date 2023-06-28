@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+
+        <link href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+        <title><%= title %></title>
+        <style>
+            .btn {
+              background-color: DodgerBlue; /* Blue background */
+              border: none; /* Remove borders */
+              color: white; /* White text */
+              padding: 12px 16px; /* Some padding */
+              margin-top: 5px;
+              margin-left: 7px;
+              font-size: 16px; /* Set a font size */
+              cursor: pointer; /* Mouse pointer on hover */
+            }
+            
+            /* Darker background on mouse-over */
+            .btn:hover {
+              background-color: RoyalBlue;
+            }
+          </style>
+
+    </head>
+    <body>
+        <span>
+  
+  
+
+            <form action="/Attendance/listPage" style="float:left">
+            <button type="submit" class="btn btn-primary btn-block form-group"> Attendance List</button>  
+            </form>
+            
+            <form action="/Attendance/makeAttendance" style="float:left">
+              <button type="submit" class="btn btn-primary btn-block form-group"> Make Attendance </button>  
+            </form>
+            
+            <form action="/Auth/logOut" style="float:left">
+            <button type="submit" class="btn btn-primary btn-block form-group">Log Out</button>  
+            </form>
+         
+            <form action="/Users/userPage" style="float:left">
+              <button type="submit" class="btn btn-primary btn-block form-group">Add User</button>  
+              </form>
+
+              <form action="/Users/userListPage" >
+                <button type="submit" class="btn btn-primary btn-block form-group ">Users List</button>  
+                </form>
+           
+              </span>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <!-- <form action="/patient">
+        <button class="btn" type="submit"><i class="fa fa-home"></i> Home</button>
+        </form> -->
+        <div class="container">
+            <% if(success && success.length) {%>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= success %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <% } %>
+             
+                    <% if(error && error.length) {%>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <%= error %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <% } %>
+                        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"
+                        integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0"
+                        crossorigin="anonymous"></script>
+            <h1 class="text-center text-primary mt-3 mb-3">Users Lists</h1>
+
+            <div class="card">
+                <div class="card-header">Users Data</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        
+                        <table id="Users-datatable" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th> S No.</th>
+                                    <th> Name</th>
+                                    <th> Email</th>
+                                    <th> Phoneno</th>
+                                    <!-- <th>Date</th>
+                                    <th>Doctor's Name</th>
+                                    <th>time</th>
+                                    <th>Status</th> -->
+                                    
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+        <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+      
+
+
+
+        </body>
+</html>
+
+<script>
+
+$('#Users-datatable').DataTable({
+        aoColumnDefs: [
+            {
+                "defaultContent": "-",
+                "targets": "_all"
+            }
+
+          
+        ],
+        stateSave: true,
+        searchDelay: 700,
+        aaSorting: [[0, 'desc']],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '/Users/userList',
+            data: {}
+        },
+        initComplete: (settings, json) => {
+            $('.tableLoader').css('display', 'none');
+        },
+        language: {
+            paginate: {
+                previous: '<i class="mdi mdi-chevron-left">',
+                next: '<i class="mdi mdi-chevron-right">'
+            }
+        },
+        drawCallback: () => {
+            $('.dataTables_paginate > .pagination').addClass('pagination-rounded');
+        }
+    });
+    
+    
+
+ 
+    
+    </script>
