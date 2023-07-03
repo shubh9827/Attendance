@@ -247,7 +247,7 @@
     <form action="/Auth/logOut" style="float:left">
       <button type="submit" class="btn btn-primary btn-block">Log Out</button>
     </form>
-    <%if(Listdate.isAdmin==true){%>
+    <%if(isAdmin){%>
       <form action="/Users/userPage" style="float:left">
         <button type="submit" class="btn btn-primary btn-block form-group">Add User</button>
       </form>
@@ -356,7 +356,7 @@
                       EXPORT
                     </button>
 
-                    <%if(Listdate.isAdmin==true){%>
+                    <%if(isAdmin){%>
                       <form action="/Attendance/delchecks" id="myForm" method="post">
                         <input type="hidden" name="ss" id="ss" value="jsa" />
                         <button class="button-27" style="width:60px; float:right" type="submit" id="btn" name="btn"
@@ -389,7 +389,7 @@
                               <th> OUT-Time</th>
                               <th> Date</th>
                               <th>  Duration</th>
-                              <%if(Listdate.isAdmin==true){%>
+                              <%if(isAdmin){%>
                               <th> Actions</th>
                               <%}%>
 
@@ -578,7 +578,7 @@
     var temp_link = document.createElement('a');
 
     // Download csv file
-    temp_link.download = "GfG.csv";
+    temp_link.download = "Attendance.csv";
     var url = window.URL.createObjectURL(CSVFile);
     temp_link.href = url;
 

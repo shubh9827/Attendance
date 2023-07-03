@@ -5,7 +5,7 @@ const authController = require('../Auth/authController');
 
 
 
-router.get('/homePage', attendanceController.homePage);
+
 router.get('/accdelete/:_id', attendanceController.accdelete);
 router.get('/makeAttendance', attendanceController.makeAttendance);
 router.get('/delete',attendanceController.delete)

@@ -140,16 +140,7 @@
 <form action="/Auth/logOut" style="float:left">
 <button type="submit" class="btn btn-primary btn-block">Log Out</button>  
 </form>
-<%if(isAdmin){%>
 
-  <form action="/Users/userPage" style="float:left">
-    <button type="submit" class="btn btn-primary btn-block form-group">Add User</button>  
-    </form>
-
-    <form action="/Users/userListPage" >
-      <button type="submit" class="btn btn-primary btn-block form-group ">Users List</button>  
-      </form>
-<%}%>
   </span>
 
 <br>
@@ -191,84 +182,54 @@
     
     
               <div class="formbold-form-wrapper">
-                <%if(isAdmin){%>
-                <form action="/Attendance/registerAtten" method="post">
-                  
-        <label for="name" class="formbold-form-label"> 
-          <h5>please! select the User</h5> 
-        </label>
-
-
-      <select id="drop" placeholder="Search or pick User..." name="name">
-        <option value="">Select a User...</option>
-
-        <% users.forEach((user) => { %>
         
-          <option   value="<%=user.name %>" ><%=user.name%></option>
          
-        <% }) %>
+          
+          <form action="/Attendance/registerAtten" method="POST">
+            <input type="hidden" value="" name="punchout" id="punchout" />
+            <button type="submit" class="formbold-btn" onclick="punchOut()" >PUNCH OUT </button>
+          </form>
+          <br>
+          <br>
+          
+          <div>
+            
+          
+            <% var newtime=new Date().toLocaleTimeString('en-GB');%>
+            <div>Current Time :&nbsp;<p style="display:inline-block" id="current"></p></div>
+            <p>Start Time :&nbsp;<%=inTime%></p>
+            <%  var startTime = moment(inTime, 'HH:mm:ss');%>
+            <%  var endTime = moment(newtime, 'HH:mm:ss');%>   
+          
+            <script>
+              setInterval(()=>{
+                var newtime= new Date().toLocaleTimeString('en-GB')
+                console.log(newtime+"newTime")
+                var startTime="<%=moment(inTime, 'HH:mm:ss');%>"
+                console.log(startTime+"startTime")
+                var endTime= "<%=moment(newtime, 'HH:mm:ss');%>"
         
-    </select>
-      
-  
-
-      <br>
-      <br>
-      
-        <div class="formbold-mb-5 w-full">
-          <label for="date" class="formbold-form-label"> Date </label>
-          <input
-            type="date"
-            name="date"
-            value="<%=date%>"
-            id="date"
-            class="formbold-form-input"
-          />
-        </div>
-
-
-        <div class="flex flex-wrap formbold--mx-3">
-          <div class="w-full sm:w-half formbold-px-3">
-            <div class="formbold-mb-5">
-              <label for="time" class="formbold-form-label"> IN-Time </label>
-              <input
-                type="time"
-                name="inTime"
-                value="<%=inTime%>"
-                id="time"
-                class="formbold-form-input"
-              />
-            </div>
+                console.log(endTime+"endTime")
+                // var duration="<%=moment.duration(endTime.diff(startTime));%>"
+                let datein="<%=datein%>"
+                console.log(datein);
+                let datenew=new Date();
+                console.log(datenew+"new date")
+                datein= new Date(datein)
+                var dur=datenew.getTime()-datein.getTime()-19800000;
+                dur =new Date(dur);
+                console.log(dur);
+                document.getElementById("duration").innerHTML=dur.toLocaleTimeString('en-GB')
+                document.getElementById("current").innerHTML=newtime
+              },1000)
+              </script>
+              
+           <div>Duration :&nbsp; <span id="duration"></span></div>
+            <div></div>
           </div>
-          <div class="w-full sm:w-half formbold-px-3">
-            <div class="formbold-mb-5">
-              <label for="time" class="formbold-form-label"> OUT-Time </label>
-              <input
-                type="time"
-                name="outTime"
-                value="<%=outTime%>"
-                id="time"
-                class="formbold-form-input"
-              />
-            </div>
-          </div>
-        </div>
-        
-  
        
-  
-        <div>
-          <button class="formbold-btn" >SUBMIT</button>
-        </div>
-      </form>
-      <%}else if(!datein){%>
-        <form action="/Attendance/registerAtten" method="POST">
-          <input type="hidden" value="" name="punchin" id="punchin" />
-          <button type="submit" class="formbold-btn" onclick="punchIn()" >PUNCH IN</button>
-        </form>
-        
-        </span>
-        <%}%>
+           
+          
           
           
          
@@ -277,20 +238,32 @@
     </div>
   </div>
 
- 
-</body>
-<script>
+  <script>
     
      
 
-  function punchIn(){
-    document.getElementById("punchin").value=new Date();
-  }
+    function punchIn(){
+      document.getElementById("punchin").value=new Date();
+    
 
-  $(document).ready(function () {
-   $('select').selectize({
-       sortField: 'text'
-   });
-});
+    }
+
+    function punchOut(){
+      document.getElementById("punchout").value=new Date();
+      // console.log(document.getElementById("punchout").value)
+     
+    }
+
+    $(document).ready(function () {
+     $('select').selectize({
+         sortField: 'text'
+     });
+ });
+
+ 
+      
+   
+  
 </script>
+</body>
 </html>

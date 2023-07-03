@@ -11,29 +11,25 @@ const { schema } = require("./attendanceValidations");
 const ListDates = require("../../../lib/models/models/ListDate");
 const { findOneAndUpdate } = require("../../../lib/models/models/User");
 class AttendanceController {
-  // --------------------------------------------------- HOME PAGE-------------------------------------------------------------------------------------------------
-  async homePage(req, res, next) {
-    if (!req.session.Email) {
-      res.redirect("/Auth");
-    }
-
-    res.render("attendance/home");
-  }
-
+  
   // ------------------------------------------------------ MAKE ATTENDANCE PAGE-------------------------------------------------------------------------------------
   async makeAttendance(req, res, next) {
-    console.log(req.session.Email + "this is req session with Email");
+    console.log(await req.session.Email + "this is req session with Email");
     const _id= await req.session._id;
     console.log(req.session._id + "this is req session with id");
     if (!req.session._id && !req.session.Email) {
-      res.redirect("/Auth");
-      // return true;
-    }
+     console.log("inside sfsfsd") 
+
+      res.redirect('/Auth');
+      //  return false;
+    }else{
 
     const users = await User.find();
     const list = await ListDate.findOne();
     let datein;
-    if (list.isAdmin == false) {
+    let isAdmin=await req.session.Email;
+    if (!isAdmin) {
+     
       let dateinp = new Date();
       dateinp = dateinp.setHours(0, 0, 0, 0);
       console.log(dateinp + "this is a dateinp");
@@ -42,10 +38,7 @@ class AttendanceController {
       console.log(dateinp + "this is a dateinp");
       // dateinp= new Date(dateinp)
       console.log(dateinp + "this is a dateinp");
-      if(!req.session._id){
-        req.flash("error","session not found please try again")
-        res.redirect("/Auth");
-      }else{
+     
       console.log(req.session._id + "this is req session");
 
       const user = await User.findOne({ _id: _id });
@@ -62,21 +55,16 @@ class AttendanceController {
           datein = att.punchin;
           console.log("this is dateIn " + datein);
           res.locals.moment = moment;
-          await res.render("attendance/makeAttendance", {
+          await res.render("attendance/punchout", {
             datein,
-            list,
-            users,
-            name: req.body.name,
-            Email: req.body.Email,
-            date: req.body.date,
+            isAdmin,
             inTime: att.inTime,
-            outTime: req.body.outTime,
           });
         } else {
           res.locals.moment = moment;
           await res.render("attendance/makeAttendance", {
             datein,
-            list,
+            isAdmin,
             users,
             name: req.body.name,
             Email: req.body.Email,
@@ -89,7 +77,7 @@ class AttendanceController {
         res.locals.moment = moment;
         await res.render("attendance/makeAttendance", {
           datein,
-          list,
+          isAdmin,
           users,
           name: req.body.name,
           Email: req.body.Email,
@@ -98,12 +86,12 @@ class AttendanceController {
           outTime: req.body.outTime,
         });
       }
-    } 
+    
   }else {
-      res.locals.moment = moment;
+    
       await res.render("attendance/makeAttendance", {
         datein,
-        list,
+        isAdmin,
         users,
         name: req.body.name,
         Email: req.body.Email,
@@ -112,15 +100,16 @@ class AttendanceController {
         outTime: req.body.outTime,
       });
     }
-  
+    }
 
   }
 
   // ------------------------------------------------------ REGISTER ATTENDANCE POST REQ--------------------------------------------------------------------------------
   async registerAtten(req, res, next) {
     const list = await ListDate.findOne();
+    let isAdmin=await req.session.Email;
     try {
-      if (list.isAdmin == false) {
+      if (!isAdmin ) {
         if (req.body.punchin) {
           const user = await User.findOne({ _id: req.session._id });
           console.log(user);
@@ -138,25 +127,7 @@ class AttendanceController {
           query = { date: { $gte: dateinp }, email: user.email, outTime: null };
           const att = await Attendance.findOne(query);
           console.log("djfbsajfbasj" + att);
-          if (false) {
-            console.log("pehle se maujud attendance k andar hun");
-            datein = new Date(datein);
-            let intime = new Date(req.body.punchin);
-            att.inTime = intime.toLocaleTimeString("en-GB");
-            console.log(att.inTime + "this is intime");
-            att.isDeleted = false;
-            req.flash("success", "Punchin updated!!");
-            res.locals.success = req.flash("success");
-            att.save();
-            let inTime = att.inTime;
-            res.locals.moment = moment;
-            res.render("attendance/makeAttendance", {
-              list,
-              datein: req.body.punchin,
-              inTime,
-            });
-          } else {
-            const user = await User.findOne({ _id: req.session._id });
+          
             console.log(
               user + req.session._id + "userId and something else with it"
             );
@@ -184,12 +155,9 @@ class AttendanceController {
             res.locals.success = req.flash("success");
             let inTime = intime;
             res.locals.moment = moment;
-            res.render("attendance/makeAttendance", {
-              list,
-              datein: req.body.punchin,
-              inTime,
-            });
-          }
+            res.redirect('/Attendance/makeAttendance')
+        
+          
         } else {
           let dateout = req.body.punchout;
           console.log(req.body.punchout);
@@ -225,12 +193,13 @@ class AttendanceController {
           res.redirect("/Attendance/makeAttendance");
         }
       } else {
+       
         let users = await User.find();
         if (req.body.name == "") {
           req.flash("error", "PLEASE!! SELECT A USER BEFORE REGISTER");
           res.locals.error = req.flash("error");
           res.render("attendance/makeAttendance", {
-            list,
+            isAdmin,
             users,
             name: req.body.name,
             email: req.body.email,
@@ -255,7 +224,7 @@ class AttendanceController {
             res.locals.error = req.flash("error");
             users.push(await User.findOne({ name: req.body.name }));
             res.render("attendance/makeAttendance", {
-              list,
+              isAdmin,
               users,
               name: req.body.name,
               email: req.body.email,
@@ -267,7 +236,9 @@ class AttendanceController {
             const user = await User.findOne({ name: req.body.name });
             console.log(user.email);
             let str1 = result.inTime;
+         
             let str2 = result.outTime;
+           
             str1 = str1.split(":");
             str2 = str2.split(":");
 
@@ -281,7 +252,7 @@ class AttendanceController {
             console.log("attendance date is " + attdate);
             let ltattdate = attdate.getTime() + 86400000;
             ltattdate = new Date(ltattdate);
-            console.log(ltattdate);
+         
             if (totalSeconds1 < totalSeconds2) {
               // let found = await Attendance.findOne({
               //   email: user.email,
@@ -292,35 +263,41 @@ class AttendanceController {
               list.save();
               result.date = new Date(result.date);
               
-                (result.name = req.body.name),
-                (result.date = attdate),
-                (result.inTime = req.body.inTime),
-                (result.outTime = req.body.outTime),
-                (result.email = user.email);
+                result.name = req.body.name
+                result.date = attdate
+                result.inTime = req.body.inTime
+                result.outTime = req.body.outTime
+                result.email = user.email
               result.isDeleted = false;
+              console.log(result.inTime);
+              console.log(result.outTime);
               var startTime = moment(result.inTime, "HH:mm:ss");
+              console.log("start Time"+startTime);
               var endTime = moment(result.outTime, "HH:mm:ss");
+              console.log("end Time"+endTime);
               let duration = moment.duration(
-                endTime.diff(result.startTime)
+                endTime.diff(startTime)
               );
+              console.log(duration+"duration")
               var hours = parseInt(duration.asHours());
-
+              console.log(hours+"hours")
               var minutes = parseInt(duration.asMinutes()) % 60;
 
               let st = hours + " hour and " + minutes + " minutes.";
+
+
+
+             
+
+
               result.duration = st;
-              // result.save();
-              // req.flash("success", "ATTENDANCE! UPDATED SUCCESSFULLY");
-              // res.redirect("/Attendance/makeAttendance");
-              // } else {
-              // result.email = user.email;
-              // result.date = attdate;
+               
               const modelvar = new Attendance(result);
               modelvar.save();
               req.flash("success", "Attendance Submitted Successfully!");
               console.log("dfsa");
               res.redirect("/Attendance/makeAttendance");
-              // }
+              
             } else {
               users.push(await User.findOne({ name: req.body.name }));
               req.flash(
@@ -331,7 +308,7 @@ class AttendanceController {
 
               
               res.render("attendance/makeAttendance", {
-                list,
+                isAdmin,
                 users,
                 name: req.body.name,
                 Email: req.body.Email,
@@ -351,7 +328,7 @@ class AttendanceController {
         req.flash("error", `${err}`);
         res.locals.error = req.flash("error");
         await res.render("attendance/makeAttendance", {
-          list,
+          isAdmin,
           users,
           name: req.body.name,
           Email: req.body.Email,
@@ -518,7 +495,7 @@ class AttendanceController {
     if (!req.session._id && !req.session.Email) {
       res.redirect("/Auth");
     }
-
+    let isAdmin=req.session.Email;
     const Listdate = await ListDate.findOne();
     let value;
     let date;
@@ -527,58 +504,58 @@ class AttendanceController {
         case 1:
           value = "JANUARY";
 
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", {isAdmin, Listdate, value, date });
           break;
         case 2:
           value = "FEBRUARY";
 
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", { isAdmin,Listdate, value, date });
           break;
         case 3:
           value = "MARCH";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", { isAdmin,Listdate, value, date });
           break;
         case 4:
           value = "APRIL";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", { isAdmin,Listdate, value, date });
           break;
         case 5:
           value = "MAY";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", { isAdmin,Listdate, value, date });
           break;
         case 6:
           value = "JUNE";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", { isAdmin,Listdate, value, date });
           break;
 
         case 7:
           value = "JULY";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", { isAdmin,Listdate, value, date });
           break;
         case 8:
           value = "AUGUST";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", {isAdmin, Listdate, value, date });
           break;
         case 9:
           value = "SEPTEMBER";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", {isAdmin, Listdate, value, date });
           break;
         case 10:
           value = "OCTOBER";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", { isAdmin,Listdate, value, date });
           break;
         case 11:
           value = "NOVEMBER";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", {isAdmin, Listdate, value, date });
           break;
         case 12:
           value = "DECEMBER";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", { isAdmin,Listdate, value, date });
           break;
 
         default:
           value = "no month chosen";
-          res.render("attendance/list", { Listdate, value, date });
+          res.render("attendance/list", {isAdmin, Listdate, value, date });
       }
     } else {
       if (Listdate.date) {
@@ -589,9 +566,9 @@ class AttendanceController {
           .reverse()
           .join("-");
 
-        res.render("attendance/list", { Listdate, value, date });
+        res.render("attendance/list", { isAdmin,Listdate, value, date });
       } else {
-        res.render("attendance/list", { Listdate, value, date });
+        res.render("attendance/list", {isAdmin, Listdate, value, date });
       }
     }
   }
@@ -649,7 +626,7 @@ class AttendanceController {
     let ltd;
     const user = await User.findOne({ _id: req.session._id });
 
-    if (inpdate.isAdmin == true) {
+    if (req.session.Email) {
       if (inpdate.date !== null) {
         ltd = inpdate.date.getTime() + 86400000;
         ltd = new Date(ltd);
@@ -787,5 +764,5 @@ class AttendanceController {
   }
 }
 module.exports = new AttendanceController();
-7
+
 
